@@ -1,19 +1,20 @@
     "use client";
     import React from 'react'
     import { zodResolver } from '@hookform/resolvers/zod';
-    import { DefaultValues, FieldValues, SubmitHandler, useForm, UseFormReturn } from "react-hook-form";
+    import { DefaultValues, FieldValues, Path, SubmitHandler, useForm, UseFormReturn } from "react-hook-form";
     import { ZodType } from 'zod';
     import { Button } from "@/components/ui/button"
     import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
     } from "@/components/ui/form"
     import { Input } from "@/components/ui/input"
+import Link from 'next/link';
+import { FIELD_NAMES, FIELD_TYPES } from '@/constants';
 
 
 
@@ -30,6 +31,8 @@
         defaultValues, 
         onSubmit
     }: Props<T>) => {
+        
+        const isSignIn = type === "SIGN_IN";
 
             // 1. Define your form.
         const form: UseFormReturn<T> = useForm({
@@ -41,27 +44,44 @@
         const handleSubmit: SubmitHandler<T>= async (data) => {}
 
     return (
+        <div className='flex flex-col gap-4'>
+            <h1 className='text-2xl font-semibold text-black'>
+                {isSignIn ? 'Welcome back to copy trader': 'Create your copy trader account'}
+            </h1>
+            <p className='text-black'>
+                {isSignIn ? "start your copy trading today" : "Please create an account to start copy trading"}
+            </p>
         <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+                {Object.keys(defaultValues).map((field)=>(
+                                    <FormField
+                                    key={field}
+                                    control={form.control}
+                                    name= {field as Path<T>}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>{FIELD_NAMES[field.name as keyof typeof FIELD_NAMES]}</FormLabel>
+                                        <FormControl>
+                                            <Input required type={FIELD_TYPES[field.name as keyof typeof FIELD_TYPES]} {...field} />
+                                        </FormControl>
+                                       
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                    />
+
+                ))}
+
+                <Button type="submit">{isSignIn ? 'Sign In': 'Sign Up'}</Button>
+            </form>
+            </Form>
+
+            <p >
+                {isSignIn ? "New to copy trading?" : "Already have an account?"}
+                <Link href={isSignIn ? '/sign-up' : '/sign-in'}>{isSignIn ? "Create an account" : "Sign in"}</Link>
+            </p>
+        </div>
+       
     )
     
     }
