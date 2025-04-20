@@ -15,6 +15,8 @@
     import { Input } from "@/components/ui/input"
 import Link from 'next/link';
 import { FIELD_NAMES, FIELD_TYPES } from '@/constants';
+import { toast } from "sonner"
+import { useRouter } from 'next/navigation';
 
 
 
@@ -31,7 +33,7 @@ import { FIELD_NAMES, FIELD_TYPES } from '@/constants';
         defaultValues, 
         onSubmit
     }: Props<T>) => {
-        
+        const router = useRouter();
         const isSignIn = type === "SIGN_IN";
 
             // 1. Define your form.
@@ -41,7 +43,23 @@ import { FIELD_NAMES, FIELD_TYPES } from '@/constants';
     })
     
         // 2. Define a submit handler.
-        const handleSubmit: SubmitHandler<T>= async (data) => {}
+        const handleSubmit: SubmitHandler<T>= async (data) => {
+            const result = await onSubmit(data);
+
+            if(result.success){
+                toast(`${isSignIn ? "Signed in" : "Signed up"}`, {
+                    description: isSignIn
+                      ? "You have successfully signed in."
+                      : "You have successfully signed up.",
+                  });
+                  router.push("/");
+            }else{
+                toast(`Error ${isSignIn ? "signing in" : "signing up"}`, {
+                    description: result.error ?? "An error occurred.",
+                    className: "bg-destructive text-destructive-foreground", // or use variant styling if you made custom
+                  });
+            }
+        }
 
     return (
         <div className='flex flex-col gap-4'>

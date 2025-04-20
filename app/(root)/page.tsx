@@ -1,3 +1,5 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
 import { Button } from "@/components/ui/button"
 import { db } from "@/database/drizzle";
 import { users } from "@/database/schema";
@@ -8,6 +10,11 @@ const Home = async ()=>{
     return(
         <>
         <Button>Click Me</Button>
+        <Avatar>
+        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+
         </>
     )
 
