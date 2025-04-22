@@ -2,6 +2,7 @@
 
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +17,19 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Mt5FormData, mt5Schema } from "@/lib/validations";
 
+type AccountInfo = {
+  login: number;
+  name: string;
+  balance: number;
+  equity: number;
+  margin: number;
+  leverage: number;
+  currency: string;
+};
+
 const MT5Form = () => {
+  const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
+
   const form = useForm<Mt5FormData>({
     resolver: zodResolver(mt5Schema),
     defaultValues: {
@@ -28,24 +41,20 @@ const MT5Form = () => {
 
   const onSubmit: SubmitHandler<Mt5FormData> = async (data) => {
     try {
-      // Send MT5 credentials to the FastAPI backend
-      const response = await fetch("http://localhost:8000/connect-mt5", {
+      const response = await fetch("http://127.0.0.1:8000/connect-mt5", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-  
-      // Handle the response from the backend
+
       const result = await response.json();
-  
-      // If there is an error, show it
-      if (result.success === false) {
+      if (result.error) {
         toast.error(`MT5 Error: ${result.error}`);
       } else {
-        toast.success(`Connected! Balance: $${result.account.balance}`);
-        console.log("Account info:", result.account);
+        toast.success(`Connected to ${result.name}: Balance $${result.balance}`);
+        setAccountInfo(result);
       }
     } catch (err) {
       console.error("MT5 connection error:", err);
@@ -54,7 +63,7 @@ const MT5Form = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h2 className="text-xl font-semibold text-black">Connect to your MT5 account</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -100,6 +109,23 @@ const MT5Form = () => {
           <Button type="submit">Connect</Button>
         </form>
       </Form>
+
+      {accountInfo && (
+        <div className="border rounded-lg p-4 shadow bg-white">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            Connected Account Info
+          </h3>
+          <ul className="text-sm text-gray-700 space-y-1">
+            <li><strong>Name:</strong> {accountInfo.name}</li>
+            <li><strong>Login:</strong> {accountInfo.login}</li>
+            <li><strong>Balance:</strong> ${accountInfo.balance}</li>
+            <li><strong>Equity:</strong> ${accountInfo.equity}</li>
+            <li><strong>Margin:</strong> ${accountInfo.margin}</li>
+            <li><strong>Leverage:</strong> 1:{accountInfo.leverage}</li>
+            <li><strong>Currency:</strong> {accountInfo.currency}</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
