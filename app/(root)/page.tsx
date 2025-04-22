@@ -1,3 +1,4 @@
+import MT5Form from "@/components/MT5Form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 import { Button } from "@/components/ui/button"
@@ -14,7 +15,7 @@ const Home = async ()=>{
         <AvatarImage src="https://github.com/shadcn.png" />
         <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-
+        <MT5Form/>
         </>
     )
 
